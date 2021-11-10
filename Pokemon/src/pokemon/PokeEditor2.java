@@ -1,0 +1,244 @@
+package pokemon;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class PokeEditor2 implements KeyListener {
+
+    private int tilePanelSelectedX = -1;
+    private int tilePanelSelectedY = -1;
+    private int fieldHeight = 50;
+    private int fieldWidth = 24;
+    private String filename = "tileset-advance.png";
+    JScrollPane tileJScrollPane;
+    JScrollPane mapJScrollPane;
+    TilePanel tilePanel;
+    MapPanel mapPanel;
+    public JCheckBox btnDeleteBlock;
+    private JMenuBar menuBar;
+    private JFrame mapCreator;
+    private final int tilesize = 16;
+    private Logic logic = new Logic();
+
+    public PokeEditor2() {
+
+        mapCreator = new JFrame("Pokemap-Creator");
+        mapCreator.setLayout(null);
+
+        this.tilePanel = new TilePanel(this, logic);
+        this.logic.setTilePanel(tilePanel);
+        this.tilePanel.addMouseListener(tilePanel);
+        this.tilePanel.addKeyListener(this);
+        this.tilePanel.setFocusable(true);
+        this.tilePanelSelectedX = tilePanel.getSelectedX();
+        this.tilePanelSelectedY = tilePanel.getSelectedY();
+        this.tilePanel.setPreferredSize(new Dimension(128, 15971));
+
+        this.mapPanel = new MapPanel(this, logic, tilePanel);
+        this.mapPanel.addMouseListener(mapPanel);
+        this.mapPanel.addKeyListener(this);
+        this.mapPanel.setFocusable(true);
+        // this.mapPanel.setBounds(0, 0, fieldWidth * tilesize * MapPanel.ZOOM, fieldHeight * tilesize * MapPanel.ZOOM);
+        this.mapPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        this.mapPanel.setPreferredSize(new Dimension(fieldWidth * tilesize * MapPanel.ZOOM, fieldHeight * tilesize * MapPanel.ZOOM));
+
+        this.btnDeleteBlock = new JCheckBox("Block löschen");
+        this.btnDeleteBlock.setBounds(1250, 10, 110, 50);
+        this.btnDeleteBlock.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    logic.setMap1(mapPanel.getMap1());
+                    logic.setDeleteActive();
+                }
+                if (e.getStateChange() == ItemEvent.DESELECTED){
+                    logic.setDeleteInactive();
+                }
+            }
+        });
+
+        tileJScrollPane = new JScrollPane(tilePanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        tileJScrollPane.addKeyListener(this);
+        tileJScrollPane.setBounds(1387, 0, 150, 800);
+        tileJScrollPane.getVerticalScrollBar().setUnitIncrement(20);
+        tileJScrollPane.setFocusable(true);
+
+        mapJScrollPane = new JScrollPane(mapPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);   //AS NEEDED!!!!
+        mapJScrollPane.addKeyListener(this);
+        mapJScrollPane.setBounds(0, 0, (fieldWidth * tilesize * MapPanel.ZOOM) + 19, 800);
+        //mapJScrollPane.setBounds(0, 0, (fieldWidth * tilesize * MapPanel.ZOOM) + 19, (fieldHeight * tilesize));
+        mapJScrollPane.getVerticalScrollBar().setUnitIncrement(20);  //passen 20?
+        mapJScrollPane.setFocusable(true);
+////////////
+        addMenu();
+
+////////////
+        mapCreator.setJMenuBar(menuBar);
+        mapCreator.add(tileJScrollPane);
+        //mapCreator.add(mapPanel);
+        mapCreator.add(mapJScrollPane);
+        mapCreator.add(btnDeleteBlock);
+
+        mapCreator.addKeyListener(this);
+
+        mapCreator.pack();
+        mapCreator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mapCreator.setVisible(true);
+
+        mapCreator.setSize(1500, 500);
+        mapCreator.setLocationRelativeTo(null);
+        mapCreator.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+    }
+
+    private void getAndSet(TilePanel tilePanel, MapPanel mapPanel) {
+        this.tilePanelSelectedX = tilePanel.getSelectedX();
+        this.tilePanelSelectedY = tilePanel.getSelectedY();
+        mapPanel.setTilePanelSelectedX(this.tilePanelSelectedX);
+        mapPanel.setTilePanelSelectedY(this.tilePanelSelectedY);
+    }
+
+    public void runGetandSet() {
+        getAndSet(tilePanel, mapPanel);
+    }
+
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            tilePanel.moveLeft();
+            runGetandSet();
+            tilePanel.repaint();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            tilePanel.moveRight();
+            runGetandSet();
+            tilePanel.repaint();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_UP) {
+            tilePanel.moveUp();
+            runGetandSet();
+            tilePanel.repaint();
+
+            final JScrollBar bar = mapJScrollPane.getVerticalScrollBar();
+            int currentValue = bar.getValue();
+            bar.setValue(currentValue + 10);
+
+        }
+        if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            tilePanel.moveDown();
+            runGetandSet();
+            tilePanel.repaint();
+
+            final JScrollBar bar = mapJScrollPane.getVerticalScrollBar();
+            int currentValue = bar.getValue();
+            bar.setValue(currentValue - 10);
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
+
+    public void addMenu() {
+        menuBar = new JMenuBar();
+        JMenu menuFile =
+                new JMenu("Datei");
+        JMenu menuEdit =
+                new JMenu("Bearbeiten");
+        JMenu menuHelp =
+                new JMenu("Hilfe");
+
+        menuBar.add(menuFile);
+        menuBar.add(menuEdit);
+        menuBar.add(menuHelp);
+        JMenu menuFileNew =
+                new JMenu("Neu");
+
+        menuFile.add(menuFileNew);
+
+        //Hinzufügen von Menüeinträgen in das Dateimenü
+        JMenuItem menuItemFileNewText =
+                new JMenuItem("Text");
+        JMenuItem menuItemFileNewImage =
+                new JMenuItem("Bild");
+        JMenuItem menuItemFileOpen =
+                new JMenuItem("Öffnen");
+        JMenuItem menuItemFileSave =
+                new JMenuItem("Speichern");
+        JMenuItem menuItemFileSaveAs =
+                new JMenuItem("Speichern als");
+        JMenuItem menuItemFileExit =
+                new JMenuItem("Beenden");
+
+        menuItemFileSave.addActionListener(e -> {
+            System.out.println("Speichern");
+            SaveMap saveMap = new SaveMap(mapPanel);
+        });
+
+        menuItemFileOpen.addActionListener(e -> {
+            LoadMap loadMap = new LoadMap();
+            mapPanel.setMap1(loadMap.getLoadedMap());
+            tilePanel.setSelectedX(0);
+            tilePanel.setSelectedY(0);
+            mapPanel.setSelectedX(0);
+            mapPanel.setSelectedY(0);
+            mapCreator.repaint();
+            final JScrollBar bar = mapJScrollPane.getVerticalScrollBar();
+            int currentValue = bar.getValue();
+            bar.setValue(currentValue + 200);
+        });
+
+
+        menuFileNew.add(menuItemFileNewText);
+        menuFileNew.add(menuItemFileNewImage);
+        menuFile.add(menuItemFileOpen);
+        menuFile.add(menuItemFileSave);
+        menuFile.add(menuItemFileSaveAs);
+        menuFile.addSeparator();
+        menuFile.add(menuItemFileExit);
+
+        JMenuItem menuItemEditDelete =
+                new JMenuItem("Löschen");
+        JMenuItem menuItemEditCopy =
+                new JMenuItem("Kopieren");
+        JMenuItem menuItemEditPaste =
+                new JMenuItem("Einfügen");
+
+        menuEdit.add(menuItemEditDelete);
+        menuEdit.add(menuItemEditCopy);
+        menuEdit.add(menuItemEditPaste);
+
+        //Hinzufügen von Menüeinträgen in das Hilfemenü
+        JMenuItem menuItemHelpHelp =
+                new JMenuItem("Hilfe");
+
+        menuHelp.add(menuItemHelpHelp);
+
+        //Hinzufügen der Menüleiste zum Frame
+
+
+        menuItemEditDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logic.setMap1(mapPanel.getMap1());
+                logic.setDeleteActive();
+
+            }
+        });
+
+
+    }
+
+
+}
