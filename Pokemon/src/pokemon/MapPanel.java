@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MapPanel extends JPanel implements MouseListener {
-    private final PokeEditor2 pokeEditor2;
-    private final Logic logic;
-    private final TilePanel tilePanel;
+    private final ObjectPlace objectPlace;
     private int selectedX = -1;
     private int selectedY = -1;
     private int preSelectedX = -1;
@@ -36,10 +34,8 @@ public class MapPanel extends JPanel implements MouseListener {
 
     private ArrayList<Block> map1 = new ArrayList<>();
 
-    public MapPanel(PokeEditor2 pokeEditor2, Logic logic, TilePanel tilePanel) {
-        this.pokeEditor2 = pokeEditor2;
-        this.logic = logic;
-        this.tilePanel = tilePanel;
+    public MapPanel(ObjectPlace objectPlace) {
+        this.objectPlace = objectPlace;
         try {
             loadBufferedImage();
         } catch (IOException e) {
@@ -67,15 +63,15 @@ public class MapPanel extends JPanel implements MouseListener {
         selectedY = e.getPoint().y;
         selectedX = selectedX / (16 * ZOOM);
         selectedY = selectedY / (16 * ZOOM);
-        pokeEditor2.runGetandSet();
-        if (!logic.isDeleteActive()) {
+        objectPlace.pokeEditor2.runGetandSet();
+        if (!objectPlace.logic.isDeleteActive()) {
             map1.add(new Block(this.tilePanelSelectedX, this.tilePanelSelectedY, selectedX, selectedY));
             repaint();
         }
-        if (logic.isDeleteActive()) {
-            logic.deleteBlock2(selectedX, selectedY);
+        if (objectPlace.logic.isDeleteActive()) {
+            objectPlace.logic.deleteBlock2(selectedX, selectedY);
             repaint();
-            tilePanel.repaint();
+            objectPlace.tilePanel.repaint();
 
         }
     }

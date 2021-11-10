@@ -3,8 +3,6 @@ package pokemon;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -12,8 +10,7 @@ import java.io.IOException;
 
 public class TilePanel extends JPanel implements MouseListener {
 
-    private final PokeEditor2 pokeEditor2;
-    private final Logic logic;
+    private final ObjectPlace objectPlace;
 
     private int selectedX = -1;
     private int selectedY = -1;
@@ -23,9 +20,8 @@ public class TilePanel extends JPanel implements MouseListener {
     private String filename = "tileset-advance.png";
     private BufferedImage tilesetBufferedImage;
 
-    public TilePanel(PokeEditor2 pokeEditor2, Logic logic) {
-        this.pokeEditor2 = pokeEditor2;
-        this.logic = logic;
+    public TilePanel(ObjectPlace objectPlace) {
+        this.objectPlace = objectPlace;
 
         try {
             loadBufferedImage();
@@ -37,7 +33,8 @@ public class TilePanel extends JPanel implements MouseListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        pokeEditor2.runGetandSet();
+
+        objectPlace.pokeEditor2.runGetandSet();
         g.drawImage(tilesetBufferedImage, 0, 0, 128, 15971, null);
         if (selectedX != -1 && selectedY != -1) {
             g.setColor(Color.RED);
@@ -60,11 +57,11 @@ public class TilePanel extends JPanel implements MouseListener {
         selectedY = e.getPoint().y;
         selectedX = selectedX / 16;
         selectedY = selectedY / 16;
-        logic.setDeleteInactive();
-        pokeEditor2.btnDeleteBlock.setSelected(false);
+        objectPlace.logic.setDeleteInactive();
+        objectPlace.pokeEditor2.btnDeleteBlock.setSelected(false);
         repaint();
         this.setFocusable(true);
-        pokeEditor2.btnDeleteBlock.setFocusable(false);
+        objectPlace.pokeEditor2.btnDeleteBlock.setFocusable(false);
     }
 
 

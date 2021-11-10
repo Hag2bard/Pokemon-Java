@@ -8,25 +8,30 @@ public class PokeEditor2 implements KeyListener {
 
     private int tilePanelSelectedX = -1;
     private int tilePanelSelectedY = -1;
-    private int fieldHeight = 50;
-    private int fieldWidth = 24;
-    private String filename = "tileset-advance.png";
-    JScrollPane tileJScrollPane;
-    JScrollPane mapJScrollPane;
-    TilePanel tilePanel;
-    MapPanel mapPanel;
+    private int fieldHeight = 20;   //kein fixer Wert
+    private int fieldWidth = 24;    //kein fixer Wert
+    private final String filename = "tileset-advance.png";
+    private JScrollPane tileJScrollPane;
+    private JScrollPane mapJScrollPane;
+    private TilePanel tilePanel;
+    private MapPanel mapPanel;
     public JCheckBox btnDeleteBlock;
     private JMenuBar menuBar;
-    private JFrame mapCreator;
+    public final JFrame mapCreator;
     private final int tilesize = 16;
-    private Logic logic = new Logic();
+    private final Logic logic;
+    private final ObjectPlace objectPlace;
 
-    public PokeEditor2() {
+    public PokeEditor2(ObjectPlace objectPlace) {
 
+        this.objectPlace = objectPlace;
+        logic = new Logic(objectPlace);
         mapCreator = new JFrame("Pokemap-Creator");
         mapCreator.setLayout(null);
 
-        this.tilePanel = new TilePanel(this, logic);
+        objectPlace.setLogic(logic);
+
+        this.tilePanel = new TilePanel(objectPlace);
         this.logic.setTilePanel(tilePanel);
         this.tilePanel.addMouseListener(tilePanel);
         this.tilePanel.addKeyListener(this);
@@ -35,26 +40,22 @@ public class PokeEditor2 implements KeyListener {
         this.tilePanelSelectedY = tilePanel.getSelectedY();
         this.tilePanel.setPreferredSize(new Dimension(128, 15971));
 
-        this.mapPanel = new MapPanel(this, logic, tilePanel);
+        this.mapPanel = new MapPanel(objectPlace);
         this.mapPanel.addMouseListener(mapPanel);
         this.mapPanel.addKeyListener(this);
         this.mapPanel.setFocusable(true);
-        // this.mapPanel.setBounds(0, 0, fieldWidth * tilesize * MapPanel.ZOOM, fieldHeight * tilesize * MapPanel.ZOOM);
         this.mapPanel.setBorder(BorderFactory.createLineBorder(Color.black));
         this.mapPanel.setPreferredSize(new Dimension(fieldWidth * tilesize * MapPanel.ZOOM, fieldHeight * tilesize * MapPanel.ZOOM));
 
         this.btnDeleteBlock = new JCheckBox("Block löschen");
         this.btnDeleteBlock.setBounds(1250, 10, 110, 50);
-        this.btnDeleteBlock.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    logic.setMap1(mapPanel.getMap1());
-                    logic.setDeleteActive();
-                }
-                if (e.getStateChange() == ItemEvent.DESELECTED){
-                    logic.setDeleteInactive();
-                }
+        this.btnDeleteBlock.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                logic.setMap1(mapPanel.getMap1());
+                logic.setDeleteActive();
+            }
+            if (e.getStateChange() == ItemEvent.DESELECTED) {
+                logic.setDeleteInactive();
             }
         });
 
@@ -66,8 +67,7 @@ public class PokeEditor2 implements KeyListener {
 
         mapJScrollPane = new JScrollPane(mapPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);   //AS NEEDED!!!!
         mapJScrollPane.addKeyListener(this);
-        mapJScrollPane.setBounds(0, 0, (fieldWidth * tilesize * MapPanel.ZOOM) + 19, 800);
-        //mapJScrollPane.setBounds(0, 0, (fieldWidth * tilesize * MapPanel.ZOOM) + 19, (fieldHeight * tilesize));
+        mapJScrollPane.setBounds(0, 0, (fieldWidth * tilesize * MapPanel.ZOOM) + 4, (fieldHeight * tilesize * MapPanel.ZOOM) + 4);
         mapJScrollPane.getVerticalScrollBar().setUnitIncrement(20);  //passen 20?
         mapJScrollPane.setFocusable(true);
 ////////////
@@ -187,16 +187,18 @@ public class PokeEditor2 implements KeyListener {
         });
 
         menuItemFileOpen.addActionListener(e -> {
-            LoadMap loadMap = new LoadMap();
-            mapPanel.setMap1(loadMap.getLoadedMap());
-            tilePanel.setSelectedX(0);
-            tilePanel.setSelectedY(0);
-            mapPanel.setSelectedX(0);
-            mapPanel.setSelectedY(0);
-            mapCreator.repaint();
-            final JScrollBar bar = mapJScrollPane.getVerticalScrollBar();
-            int currentValue = bar.getValue();
-            bar.setValue(currentValue + 200);
+            LoadMap loadMap = new LoadMap(objectPlace);
+            if (loadMap.getMapString() != null) {
+                mapPanel.setMap1(loadMap.getLoadedMap());
+                tilePanel.setSelectedX(0);
+                tilePanel.setSelectedY(0);
+                mapPanel.setSelectedX(0);
+                mapPanel.setSelectedY(0);
+                mapCreator.repaint();
+                final JScrollBar bar = mapJScrollPane.getVerticalScrollBar();
+                int currentValue = bar.getValue();
+                bar.setValue(currentValue + 200);
+            }
         });
 
 
@@ -209,7 +211,7 @@ public class PokeEditor2 implements KeyListener {
         menuFile.add(menuItemFileExit);
 
         JMenuItem menuItemEditDelete =
-                new JMenuItem("Löschen");
+                new JMenuItem("Block Löschen");
         JMenuItem menuItemEditCopy =
                 new JMenuItem("Kopieren");
         JMenuItem menuItemEditPaste =

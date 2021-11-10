@@ -8,12 +8,17 @@ public class Logic {
 
     private ArrayList<Block> map1 = new ArrayList<>();
     private boolean isDeleteActive = false;
-    private TilePanel tilePanel;
+    private ObjectPlace objectPlace;
+
+    public Logic(ObjectPlace objectPlace) {
+        this.objectPlace = objectPlace;
+    }
 
     public void setDeleteActive() {
         isDeleteActive = true;
-        tilePanel.setSelectedX(-1);
-        tilePanel.setSelectedY(-1);
+        objectPlace.tilePanel.setSelectedX(-1);
+        objectPlace.tilePanel.setSelectedY(-1);
+        objectPlace.pokeEditor2.btnDeleteBlock.setSelected(true);
     }
     public void setDeleteInactive() {
         isDeleteActive = false;
@@ -41,7 +46,7 @@ public class Logic {
     }
 
     public void setTilePanel(TilePanel tilePanel) {
-        this.tilePanel = tilePanel;
+        objectPlace.tilePanel = tilePanel;
     }
 
 

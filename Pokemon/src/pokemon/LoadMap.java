@@ -10,18 +10,20 @@ import java.util.ArrayList;
 
 public class LoadMap {
 
-    String mapString;
-    String[] mapStringArray;
+    private String mapString;
+    private String[] mapStringArray;
+    private ArrayList<Block> loadedMap;
+    private ObjectPlace objectPlace;
 
-    public ArrayList<Block> getLoadedMap() {
-        return loadedMap;
-    }
-
-    ArrayList<Block> loadedMap;
-
-    public LoadMap() {
+    public LoadMap(ObjectPlace objectPlace) {
+        this.objectPlace = objectPlace;
         this.mapString = loadMapStringFromFile();
-        loadedMap = convertStringToMap(this.mapString);
+        if (this.mapString != null) {
+            loadedMap = convertStringToMap(this.mapString);
+        }
+        if (this.mapString == null) {
+            JOptionPane.showMessageDialog(objectPlace.pokeEditor2.mapCreator,"Sie haben keine Datei ausgewählt!");
+        }
     }
 
     private String loadMapStringFromFile() {
@@ -34,9 +36,6 @@ public class LoadMap {
             System.out.println(selectedFile.getAbsolutePath());
 
             Path fileName = Path.of(selectedFile.getAbsolutePath());
-//            String content  = "hello world !!";
-//            Files.writeString(fileName, content);
-
             String actual = null;
             try {
                 actual = Files.readString(fileName);
@@ -98,6 +97,14 @@ public class LoadMap {
             }
         }
         return map1;
+    }
+
+
+    public ArrayList<Block> getLoadedMap() {
+        return loadedMap;
+    }
+    public String getMapString() {
+        return mapString;
     }
 
 
