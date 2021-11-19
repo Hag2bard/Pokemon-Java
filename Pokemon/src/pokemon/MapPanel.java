@@ -1,3 +1,5 @@
+
+
 package pokemon;
 
 import javax.imageio.ImageIO;
@@ -9,8 +11,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * @author dch
+ */
 public class MapPanel extends JPanel implements MouseListener {
     private final ObjectPlace objectPlace;
+    private PokeEditor2 pokeEditor2;
+    private boolean isPickupActive = false;
     private int selectedX = -1;
     private int selectedY = -1;
     private int preSelectedX = -1;
@@ -28,14 +35,18 @@ public class MapPanel extends JPanel implements MouseListener {
         this.map1 = map1;
     }
 
+
     public ArrayList<Block> getMap1() {
         return this.map1;
+
     }
+
 
     private ArrayList<Block> map1 = new ArrayList<>();
 
     public MapPanel(ObjectPlace objectPlace) {
         this.objectPlace = objectPlace;
+//        pokeEditor2 = objectPlace.getPokeEditor2();
         try {
             loadBufferedImage();
         } catch (IOException e) {
@@ -55,25 +66,54 @@ public class MapPanel extends JPanel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (selectedX != -1 && selectedY != -1) {
-            preSelectedX = selectedX;
-            preSelectedY = selectedY;
-        }
-        selectedX = e.getPoint().x;
-        selectedY = e.getPoint().y;
-        selectedX = selectedX / (16 * ZOOM);
-        selectedY = selectedY / (16 * ZOOM);
-        objectPlace.pokeEditor2.runGetandSet();
-        if (!objectPlace.logic.isDeleteActive()) {
-            map1.add(new Block(this.tilePanelSelectedX, this.tilePanelSelectedY, selectedX, selectedY));
-            repaint();
-        }
-        if (objectPlace.logic.isDeleteActive()) {
-            objectPlace.logic.deleteBlock2(selectedX, selectedY);
-            repaint();
-            objectPlace.tilePanel.repaint();
+        if (isPickupActive) {
+            //doPICKUP
+            selectedX = e.getPoint().x;                                 //Hole Koordinaten wo im MapPanel geklickt wurde
+            selectedY = e.getPoint().y;                                 //Hole Koordinaten wo im MapPanel geklickt wurde
+            selectedX = selectedX / (16 * ZOOM);                        //Wandle Koordinaten in Block-Koordinaten um (Ein Block hat 16 Pixel (mit Zoom 32))
+            selectedY = selectedY / (16 * ZOOM);                        //Wandle Koordinaten in Block-Koordinaten um (ZOOM ist 2)
+            for (int i = 0; i < map1.size(); i++) {
+                int destX = map1.get(i).getDestinationX();              //Hole DestinationX und Y aus aktuellem Index der Block-Arrayliste und
+                int destY = map1.get(i).getDestinationY();              // speichere diese in lokale Variablen destX und destY
+                if (destX == selectedX && destY == selectedY) {         //Wenn die ZielKoordinaten im aktuellen Index dem im MapPanel geklicktem entsprechen
+//                    tilePanelSelectedX = map1.get(i).getSourceX();      // dann speicher
+//                    tilePanelSelectedY = map1.get(i).getSourceY();
+                    objectPlace.tilePanel.setSelectedX(map1.get(i).getSourceX());
+                    objectPlace.tilePanel.setSelectedY(map1.get(i).getSourceY());
+//                    objectPlace.tilePanel.setSelectedX(tilePanelSelectedX);
+//                    objectPlace.tilePanel.setSelectedY(tilePanelSelectedY);
+                    this.pokeEditor2 = objectPlace.getPokeEditor2();
+                    this.pokeEditor2.deactivatePickupTool();
+                    objectPlace.tilePanel.setFocusable(true);
+                    objectPlace.tilePanel.repaint();
+                    break;
+                }
+            }
+            objectPlace.pokeEditor2.runGetandSet();
+            objectPlace.pokeEditor2.deselectBtnPickupTool();
 
+        } else {
+            if (selectedX != -1 && selectedY != -1) {
+                preSelectedX = selectedX;
+                preSelectedY = selectedY;
+            }
+            selectedX = e.getPoint().x;
+            selectedY = e.getPoint().y;
+            selectedX = selectedX / (16 * ZOOM);
+            selectedY = selectedY / (16 * ZOOM);
+            objectPlace.pokeEditor2.runGetandSet();
+            if (!objectPlace.logic.isDeleteActive()) {
+                map1.add(new Block(this.tilePanelSelectedX, this.tilePanelSelectedY, selectedX, selectedY));
+                repaint();
+            }
+            if (objectPlace.logic.isDeleteActive()) {
+                objectPlace.logic.deleteBlock2(selectedX, selectedY);
+                repaint();
+                objectPlace.tilePanel.repaint();
+
+            }
         }
+
     }
 
     @Override
@@ -119,6 +159,14 @@ public class MapPanel extends JPanel implements MouseListener {
 
     public ArrayList<Block> getBlockArrayList() {
         return map1;
+    }
+
+    public void activatePickupTool() {
+        this.isPickupActive = true;
+    }
+
+    public void deactivatePickupTool() {
+        this.isPickupActive = false;
     }
 
 

@@ -7,6 +7,7 @@ public class Main2 {
         ObjectPlace objectPlace = new ObjectPlace();
        PokeEditor2 pokeEditor2 = new PokeEditor2(objectPlace);
        objectPlace.setPokeEditor2(pokeEditor2);
+
     }
 }
 

@@ -15,6 +15,9 @@ public class PokeEditor2 implements KeyListener {
     private JScrollPane mapJScrollPane;
     private TilePanel tilePanel;
     private MapPanel mapPanel;
+    private JButton btnPickupTool;
+    private JButton btnMultipleSelect;
+
     public JCheckBox btnDeleteBlock;
     private JMenuBar menuBar;
     public final JFrame mapCreator;
@@ -59,6 +62,8 @@ public class PokeEditor2 implements KeyListener {
             }
         });
 
+        this.btnMultipleSelect = new JButton();
+
         tileJScrollPane = new JScrollPane(tilePanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tileJScrollPane.addKeyListener(this);
         tileJScrollPane.setBounds(1387, 0, 150, 800);
@@ -72,13 +77,16 @@ public class PokeEditor2 implements KeyListener {
         mapJScrollPane.setFocusable(true);
 ////////////
         addMenu();
-
+        addButtonBar();
 ////////////
+
         mapCreator.setJMenuBar(menuBar);
         mapCreator.add(tileJScrollPane);
         //mapCreator.add(mapPanel);
         mapCreator.add(mapJScrollPane);
         mapCreator.add(btnDeleteBlock);
+        mapCreator.add(btnPickupTool);
+        mapCreator.add(btnMultipleSelect);
 
         mapCreator.addKeyListener(this);
 
@@ -230,16 +238,54 @@ public class PokeEditor2 implements KeyListener {
         //Hinzufügen der Menüleiste zum Frame
 
 
-        menuItemEditDelete.addActionListener(new ActionListener() {
+        menuItemEditDelete.addActionListener(e -> {
+            logic.setMap1(mapPanel.getMap1());
+            logic.setDeleteActive();
+
+        });
+
+
+    }
+
+    public void addButtonBar() {
+        Icon pickupIconSelected = new ImageIcon(getClass().getResource("colorpicker2.png"));
+        Icon pickupIconDeselected = new ImageIcon(getClass().getResource("colorpickerGR.png"));
+        btnPickupTool = new JButton("pickupIconSelected");
+        btnPickupTool.setIcon(pickupIconSelected);
+        btnPickupTool.setBounds(1250, 60, 118, 128);
+        btnPickupTool.setBorder(BorderFactory.createLineBorder(Color.black));
+        btnPickupTool.setSelectedIcon(pickupIconDeselected);
+        btnPickupTool.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                logic.setMap1(mapPanel.getMap1());
-                logic.setDeleteActive();
+                if (!btnPickupTool.isSelected()) {
+                    selectBtnPickupTool();
+                    System.out.println("Nun selektiert");
+                    activatePickupTool();
+                } else {
+                    btnPickupTool.setSelected(false);
+                }
 
             }
         });
 
+    }
 
+    public void activatePickupTool(){
+        mapPanel.activatePickupTool();
+    }
+
+    public void deactivatePickupTool(){
+        mapPanel.deactivatePickupTool();
+    }
+
+
+    public void selectBtnPickupTool(){
+        btnPickupTool.setSelected(true);
+    }
+
+    public void deselectBtnPickupTool(){
+        btnPickupTool.setSelected(false);
     }
 
 
