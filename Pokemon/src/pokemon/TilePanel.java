@@ -22,6 +22,7 @@ public class TilePanel extends JPanel implements MouseListener {
     private BufferedImage tilesetBufferedImage;
     private boolean multipleBlockSelected = true;  ///// auf false setzen
     private ArrayList<Integer> selectedBlocks;    // - Werte sind X und + Werte sind Y
+    private int amountOfSelectedBlocks = 2;
 
     public TilePanel(ObjectPlace objectPlace) {
         this.objectPlace = objectPlace;
@@ -42,23 +43,22 @@ public class TilePanel extends JPanel implements MouseListener {
         g.drawImage(tilesetBufferedImage, 0, 0, 128, 15971, null);
         if (multipleBlockSelected) {
             g.setColor(Color.MAGENTA);
-            int selectedBlocksX = 0;
-            int selectedBlocksY = 0;
-            for (int i = 0; i < selectedBlocks.size(); i++) {
-                if (selectedBlocks.get(i) < 0) {
-                    selectedBlocksX = (selectedBlocks.get(i) * (-1));
-                } else {
-                    selectedBlocksY = selectedBlocks.get(i);
-                }
-                    g.drawRect(selectedBlocksX * tilesize, selectedBlocksY * tilesize, tilesize, tilesize);//sollte eigentlich fertig sein an dieser Stelle
-                System.out.println(selectedBlocksX  + "X");
-                System.out.println(selectedBlocksY  + "Y");
+            int selectedBlocksX = 20;
+            int selectedBlocksY = 20;
+            for (int i = 0; i < selectedBlocks.size(); i = i + 2) {
+
+                selectedBlocksX = selectedBlocks.get(i);
+                selectedBlocksY = selectedBlocks.get(i + 1);
+
+                g.drawRect(selectedBlocksX * tilesize, selectedBlocksY * tilesize, tilesize, tilesize);//sollte eigentlich fertig sein an dieser Stelle
+
 
             }
         } else {
             if (selectedX != -1 && selectedY != -1) {
                 g.setColor(Color.RED);
                 g.drawRect(selectedX * tilesize, selectedY * tilesize, tilesize, tilesize);
+
             }
         }
     }
@@ -71,7 +71,7 @@ public class TilePanel extends JPanel implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         if (!multipleBlockSelected) {
-            if (selectedX != -1 && selectedY != -1) {
+            if (selectedX != -1 && selectedY != -1) {   //wenn keine Selektion da
                 preSelectedX = selectedX;
                 preSelectedY = selectedY;
             }
@@ -85,15 +85,14 @@ public class TilePanel extends JPanel implements MouseListener {
             this.setFocusable(true);
             objectPlace.pokeEditor2.btnDeleteBlock.setFocusable(false);
         } else {
-            selectedBlocks.add((e.getPoint().x / 16) * (-1));
-            selectedBlocks.add((e.getPoint().y) / 16);
+            for (int y = 0; y < amountOfSelectedBlocks; y++) {
+                for (int x = 0; x < amountOfSelectedBlocks; x++) {
+                    selectedBlocks.add((e.getPoint().x / 16) + x);
+                    selectedBlocks.add((e.getPoint().y / 16) + y);
+                }
+            }
             repaint();
             this.setFocusable(true);
-            for (int i = 0; i < selectedBlocks.size(); i++) {
-
-             //   System.out.println(selectedBlocks.get(i));                      //Hier wird angezeigt was ausgewählt ist
-            }
-
         }
     }
 
