@@ -21,8 +21,8 @@ public class TilePanel extends JPanel implements MouseListener {
     private String filename = "tileset-advance.png";
     private BufferedImage tilesetBufferedImage;
     private boolean multipleBlockSelected = true;  ///// auf false setzen
-    private ArrayList<Integer> selectedBlocks;    // - Werte sind X und + Werte sind Y
-    private int amountOfSelectedBlocks = 2;
+    public ArrayList<Integer> selectedBlocks;    // - Werte sind X und + Werte sind Y
+    public int amountOfSelectedBlocks = 1;    // kann auch 3 sein oder 4 oder 1!!!
 
     public TilePanel(ObjectPlace objectPlace) {
         this.objectPlace = objectPlace;
@@ -85,6 +85,7 @@ public class TilePanel extends JPanel implements MouseListener {
             this.setFocusable(true);
             objectPlace.pokeEditor2.btnDeleteBlock.setFocusable(false);
         } else {
+            selectedBlocks.clear();
             for (int y = 0; y < amountOfSelectedBlocks; y++) {
                 for (int x = 0; x < amountOfSelectedBlocks; x++) {
                     selectedBlocks.add((e.getPoint().x / 16) + x);

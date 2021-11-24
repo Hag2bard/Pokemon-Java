@@ -30,23 +30,22 @@ public class MapPanel extends JPanel implements MouseListener {
     private int tilePanelSelectedX = -1;
     private int tilePanelSelectedY = -1;
     Graphics2D graphics2D;
+    private ArrayList<Integer> selectedBlocksOnMapPanel;
 
     public void setMap1(ArrayList<Block> map1) {
         this.map1 = map1;
     }
-
 
     public ArrayList<Block> getMap1() {
         return this.map1;
 
     }
 
-
     private ArrayList<Block> map1 = new ArrayList<>();
 
     public MapPanel(ObjectPlace objectPlace) {
         this.objectPlace = objectPlace;
-//        pokeEditor2 = objectPlace.getPokeEditor2();
+        selectedBlocksOnMapPanel = new ArrayList<Integer>();
         try {
             loadBufferedImage();
         } catch (IOException e) {
@@ -68,26 +67,38 @@ public class MapPanel extends JPanel implements MouseListener {
     public void mouseClicked(MouseEvent e) {
         if (isPickupActive) {
             //doPICKUP
-            selectedX = e.getPoint().x;                                 //Hole Koordinaten wo im MapPanel geklickt wurde
-            selectedY = e.getPoint().y;                                 //Hole Koordinaten wo im MapPanel geklickt wurde
-            selectedX = selectedX / (16 * ZOOM);                        //Wandle Koordinaten in Block-Koordinaten um (Ein Block hat 16 Pixel (mit Zoom 32))
-            selectedY = selectedY / (16 * ZOOM);                        //Wandle Koordinaten in Block-Koordinaten um (ZOOM ist 2)
-            for (int i = 0; i < map1.size(); i++) {
-                int destX = map1.get(i).getDestinationX();              //Hole DestinationX und Y aus aktuellem Index der Block-Arrayliste und
-                int destY = map1.get(i).getDestinationY();              // speichere diese in lokale Variablen destX und destY
-                if (destX == selectedX && destY == selectedY) {         //Wenn die ZielKoordinaten im aktuellen Index dem im MapPanel geklicktem entsprechen
-//                    tilePanelSelectedX = map1.get(i).getSourceX();      // dann speicher
-//                    tilePanelSelectedY = map1.get(i).getSourceY();
-                    objectPlace.tilePanel.setSelectedX(map1.get(i).getSourceX());
-                    objectPlace.tilePanel.setSelectedY(map1.get(i).getSourceY());
-//                    objectPlace.tilePanel.setSelectedX(tilePanelSelectedX);
-//                    objectPlace.tilePanel.setSelectedY(tilePanelSelectedY);
-                    this.pokeEditor2 = objectPlace.getPokeEditor2();
-                    this.pokeEditor2.deactivatePickupTool();
-                    objectPlace.tilePanel.setFocusable(true);
-                    objectPlace.tilePanel.repaint();
-                    break;
+
+            for (int y = 0; y < objectPlace.tilePanel.amountOfSelectedBlocks; y++) {
+                for (int x = 0; x < objectPlace.tilePanel.amountOfSelectedBlocks; x++) {
+                    selectedBlocksOnMapPanel.add((e.getPoint().x / 16) + x);
+                    selectedBlocksOnMapPanel.add((e.getPoint().y / 16) + y);
                 }
+            }
+
+//            selectedX = e.getPoint().x;                                 //Hole Koordinaten wo im MapPanel geklickt wurde
+//            selectedY = e.getPoint().y;                                 //Hole Koordinaten wo im MapPanel geklickt wurde
+//            selectedX = selectedX / (16 * ZOOM);                        //Wandle Koordinaten in Block-Koordinaten um (Ein Block hat 16 Pixel (mit Zoom 32))
+//            selectedY = selectedY / (16 * ZOOM);                        //Wandle Koordinaten in Block-Koordinaten um (ZOOM ist 2)
+            for (int i = 0; i < map1.size(); i++) {
+//                int destX = map1.get(i).getDestinationX();              //Hole DestinationX und Y aus aktuellem Index der Block-Arrayliste und
+//                int destY = map1.get(i).getDestinationY();              // speichere diese in lokale Variablen destX und destY
+//                if (destX == selectedX && destY == selectedY) {         //Wenn die ZielKoordinaten im aktuellen Index dem im MapPanel geklicktem entsprechen
+////                    tilePanelSelectedX = map1.get(i).getSourceX();      // dann speicher
+////                    tilePanelSelectedY = map1.get(i).getSourceY();
+//                    objectPlace.tilePanel.setSelectedX(map1.get(i).getSourceX());
+//                    objectPlace.tilePanel.setSelectedY(map1.get(i).getSourceY());
+////                    objectPlace.tilePanel.setSelectedX(tilePanelSelectedX);
+////                    objectPlace.tilePanel.setSelectedY(tilePanelSelectedY);
+//                    this.pokeEditor2 = objectPlace.getPokeEditor2();
+//                    this.pokeEditor2.deactivatePickupTool();
+//                    objectPlace.tilePanel.setFocusable(true);
+//                    objectPlace.tilePanel.repaint();
+//                    break;
+//                }
+                objectPlace.tilePanel.selectedBlocks = selectedBlocksOnMapPanel;
+                objectPlace.pokeEditor2.deactivatePickupTool();
+                objectPlace.tilePanel.setFocusable(true);
+                objectPlace.tilePanel.repaint();
             }
             objectPlace.pokeEditor2.runGetandSet();
             objectPlace.pokeEditor2.deselectBtnPickupTool();
@@ -103,6 +114,15 @@ public class MapPanel extends JPanel implements MouseListener {
             selectedY = selectedY / (16 * ZOOM);
             objectPlace.pokeEditor2.runGetandSet();
             if (!objectPlace.logic.isDeleteActive()) {
+                int offset = (int) Math.sqrt((objectPlace.tilePanel.selectedBlocks.size()/2));
+                int x = 0; int y = 0;
+                for (int i = 0; i < objectPlace.tilePanel.selectedBlocks.size(); i=i+2) {
+                    map1.add(new Block(objectPlace.tilePanel.selectedBlocks.get(i), objectPlace.tilePanel.selectedBlocks.get(i+1), selectedX+x, selectedY+y));
+                    x++;
+                    if (x==offset) {
+                        x=0; y++;
+                    }
+                }
                 map1.add(new Block(this.tilePanelSelectedX, this.tilePanelSelectedY, selectedX, selectedY));
                 repaint();
             }
