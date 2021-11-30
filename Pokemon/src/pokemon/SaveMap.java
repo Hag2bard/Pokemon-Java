@@ -6,29 +6,33 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 
 public class SaveMap {
-    ArrayList<Block> mapArrayList = new ArrayList<>();
-    MapPanel mapPanel;
-    StringBuilder mapStringBuilder = new StringBuilder();
+    private BlockArray mapArrayLayer1;
+    private BlockArray mapArrayLayer2;
+    private MapPanel mapPanel;
+    private StringBuilder mapStringBuilder = new StringBuilder();
 
     public SaveMap(MapPanel mapPanel) {
         this.mapPanel = mapPanel;
-        mapArrayList = mapPanel.getBlockArrayList();
-        saveMapStringToFile(convertMapToString(this.mapArrayList));
+        mapArrayLayer1 = mapPanel.getBlockArrayLayer1();
+        mapArrayLayer2 = mapPanel.getBlockArrayLayer2();
+        saveMapStringToFile(convertMapToString(this.mapArrayLayer1, this.mapArrayLayer2));
     }
 
-    private String convertMapToString(ArrayList<Block> mapArrayList) {
-        for (int i = 0; i < mapArrayList.size(); i++) {
-            mapStringBuilder.append(mapArrayList.get(i).getDestinationX() + ";");
-            mapStringBuilder.append(mapArrayList.get(i).getDestinationY() + ";");
-            mapStringBuilder.append(mapArrayList.get(i).getSourceX() + ";");
-            mapStringBuilder.append(mapArrayList.get(i).getSourceY() + ";");
-            mapStringBuilder.append("\n");
-
+    private String convertMapToString(BlockArray mapArrayLayer1, BlockArray mapArrayLayer2) {
+        for (int i = 0; i < mapArrayLayer1.size(); i++) {
+            mapStringBuilder.append(mapArrayLayer1.get(i).getDestinationX() + ";");
+            mapStringBuilder.append(mapArrayLayer1.get(i).getDestinationY() + ";");
+            mapStringBuilder.append(mapArrayLayer1.get(i).getSourceX() + ";");
+            mapStringBuilder.append(mapArrayLayer1.get(i).getSourceY() + ";");
+        }
+        mapStringBuilder.append("NEXTLAYER");
+        for (int i = 0; i < mapArrayLayer2.size(); i++) {
+            mapStringBuilder.append(mapArrayLayer2.get(i).getDestinationX() + ";");
+            mapStringBuilder.append(mapArrayLayer2.get(i).getDestinationY() + ";");
+            mapStringBuilder.append(mapArrayLayer2.get(i).getSourceX() + ";");
+            mapStringBuilder.append(mapArrayLayer2.get(i).getSourceY() + ";");
         }
         return mapStringBuilder.toString();
     }
@@ -45,7 +49,7 @@ public class SaveMap {
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = jfc.getSelectedFile();
-            System.out.println(selectedFile.getAbsolutePath());
+
 
             try (FileWriter writer = new FileWriter(selectedFile);
                  BufferedWriter bw = new BufferedWriter(writer)) {

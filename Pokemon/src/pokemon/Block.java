@@ -6,6 +6,7 @@ public class Block {
     private int destinationX = -1;
     private int destinationY = -1;
 
+
     public Block(int sourceX, int sourceY, int destinationX, int destinationY) {
         this.sourceX = sourceX;
         this.sourceY = sourceY;
@@ -29,5 +30,9 @@ public class Block {
         return destinationY;
     }
 
+    public void setSource(int sourceX, int sourceY) {
+        this.sourceX = sourceX;
+        this.sourceY = sourceY;
+    }
 
 }

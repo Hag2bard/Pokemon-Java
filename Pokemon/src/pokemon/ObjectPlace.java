@@ -8,6 +8,11 @@ public class ObjectPlace {
     public SaveMap saveMap;
     public LoadMap loadMap;
     public Block block;
+    public MapPanel mapPanel;
+
+    public void setMapPanel(MapPanel mapPanel) {
+        this.mapPanel = mapPanel;
+    }
 
     public PokeEditor2 getPokeEditor2() {
         return pokeEditor2;
@@ -50,6 +55,7 @@ public class ObjectPlace {
     public void setBlock(Block block) {
         this.block = block;
     }
+
 
 }
 

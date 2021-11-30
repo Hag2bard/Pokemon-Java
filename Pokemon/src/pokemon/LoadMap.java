@@ -6,19 +6,22 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 public class LoadMap {
 
     private String mapString;
-    private String[] mapStringArray;
-    private ArrayList<Block> loadedMap;
+    private String[] mapLayer1StringArray;
+    private String[] mapLayer2StringArray;
+    private String[] layerStringArray;
+
+    private BlockArray[] loadedMap;
     private ObjectPlace objectPlace;
 
     public LoadMap(ObjectPlace objectPlace) {
         this.objectPlace = objectPlace;
         this.mapString = loadMapStringFromFile();
         if (this.mapString != null) {
+            System.out.println("TEST");
             loadedMap = convertStringToMap(this.mapString);
         }
         if (this.mapString == null) {
@@ -33,7 +36,7 @@ public class LoadMap {
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = jfc.getSelectedFile();
-            System.out.println(selectedFile.getAbsolutePath());
+
 
             Path fileName = Path.of(selectedFile.getAbsolutePath());
             String actual = null;
@@ -42,15 +45,17 @@ public class LoadMap {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println(actual);
+
             mapString = actual;
 
         }
         return mapString;
     }
 
-    private ArrayList<Block> convertStringToMap(String mapString) {
-        mapStringArray = this.mapString.split(";");
+    private BlockArray[] convertStringToMap(String mapString) {
+        layerStringArray = this.mapString.split("NEXTLAYER");
+        mapLayer1StringArray = layerStringArray[0].split(";");
+        mapLayer2StringArray = layerStringArray[1].split(";");
         String temp0 = null;
         String temp1 = null;
         String temp2 = null;
@@ -60,26 +65,27 @@ public class LoadMap {
         int tempInt2 = 0;
         int tempInt3 = 0;
 
-        ArrayList<Block> map1 = new ArrayList<>();
+        BlockArray mapLayer1 = new BlockArray(objectPlace.pokeEditor2.getAmountOfBlocks());
+        BlockArray mapLayer2 = new BlockArray(objectPlace.pokeEditor2.getAmountOfBlocks());
         int counter = 0;
-        for (int i = 0; i < mapStringArray.length; i++) {
-            System.out.println("I=" + i + " value:" + mapStringArray[i]);
+        for (int i = 0; i < mapLayer1StringArray.length; i++) {
+            //System.out.println("I=" + i + " value:" + mapLayer1StringArray[i]);
 
             switch (counter) {
                 case 0 -> {
-                    temp0 = mapStringArray[i];
+                    temp0 = mapLayer1StringArray[i];
                     temp0 = temp0.trim();
                 }
                 case 1 -> {
-                    temp1 = mapStringArray[i];
+                    temp1 = mapLayer1StringArray[i];
                     temp1 = temp1.trim();
                 }
                 case 2 -> {
-                    temp2 = mapStringArray[i];
+                    temp2 = mapLayer1StringArray[i];
                     temp2 = temp2.trim();
                 }
                 case 3 -> {
-                    temp3 = mapStringArray[i];
+                    temp3 = mapLayer1StringArray[i];
                     temp3 = temp3.trim();
 
                 }
@@ -93,14 +99,53 @@ public class LoadMap {
                 tempInt1 = Integer.parseInt(temp1);
                 tempInt2 = Integer.parseInt(temp2);
                 tempInt3 = Integer.parseInt(temp3);
-                map1.add(new Block(tempInt2, tempInt3, tempInt0, tempInt1));
+                mapLayer1.add(tempInt2, tempInt3, tempInt0, tempInt1);
             }
         }
-        return map1;
+        for (int i = 0; i < mapLayer2StringArray.length; i++) {
+            //System.out.println("I=" + i + " value:" + mapLayer2StringArray[i]);
+
+            switch (counter) {
+                case 0 -> {
+                    temp0 = mapLayer2StringArray[i];
+                    temp0 = temp0.trim();
+                }
+                case 1 -> {
+                    temp1 = mapLayer2StringArray[i];
+                    temp1 = temp1.trim();
+                }
+                case 2 -> {
+                    temp2 = mapLayer2StringArray[i];
+                    temp2 = temp2.trim();
+                }
+                case 3 -> {
+                    temp3 = mapLayer2StringArray[i];
+                    temp3 = temp3.trim();
+
+                }
+                default -> throw new IllegalStateException("Unexpected value: " + counter);
+            }
+
+            counter++;
+            if (counter == 4) {
+                counter = 0;
+                System.out.println(temp0);
+                tempInt0 = Integer.parseInt(temp0);
+                tempInt1 = Integer.parseInt(temp1);
+                tempInt2 = Integer.parseInt(temp2);
+                tempInt3 = Integer.parseInt(temp3);
+                mapLayer2.add(tempInt2, tempInt3, tempInt0, tempInt1);
+            }
+        }
+        BlockArray[] map = new BlockArray[2];
+        map[0]=mapLayer1;
+        map[1]=mapLayer2;
+
+        return map;
     }
 
 
-    public ArrayList<Block> getLoadedMap() {
+    public BlockArray[] getLoadedMap() {
         return loadedMap;
     }
     public String getMapString() {
